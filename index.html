@@ -397,9 +397,18 @@
   }
   document.querySelectorAll(".js-cta").forEach(function (a) {
     a.href = dest(a.dataset.place);
-    a.addEventListener("click", function () {
+    a.addEventListener("click", function (ev) {
       // begin_checkout = the strongest on-page signal; the purchase itself is reported from the checkout (pixel or CAPI).
-      track("begin_checkout", { currency: "INR", value: C.PRICE_INR, items: [{ item_id: "gys_discovery", item_name: "GYS Discovery", price: C.PRICE_INR, quantity: 1 }] });
+      // Tapping the offer = choosing Discovery (add_to_cart), then heading to checkout (begin_checkout). AppLovin requires both.
+      var item = { currency: "INR", value: C.PRICE_INR, items: [{ item_id: "gys_discovery", item_name: "GYS Discovery", price: C.PRICE_INR, quantity: 1 }] };
+      track("add_to_cart", item);
+      track("begin_checkout", item);
+      // Give the pixel a moment to send before leaving the page (plain clicks only; new-tab clicks are left alone).
+      if (typeof window.axon === "function" && !(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button)) {
+        ev.preventDefault();
+        var href = a.href;
+        setTimeout(function () { window.location.href = href; }, 300);
+      }
     });
   });
   track("page_view");
