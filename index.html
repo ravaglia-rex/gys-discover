@@ -19,11 +19,29 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 
-<!-- ================================================================================================
-     APPLOVIN PIXEL: paste the base code from AppLovin Ads Manager → Events Manager here (or load it via
-     Google Tag Manager). The page below only CALLS window.axon if it exists, so it is safe without it.
-     ================================================================================================ -->
-<!-- APPLOVIN_PIXEL_BASE_CODE -->
+<!-- AppLovin (Axon) pixel: the official loader, the same code as ausa.io/fresh-start. It stays off until the GYS
+     account's Event Key is set below (AppLovin Ads → account menu → Keys → AppLovin Event Key). -->
+<script>
+  window.GYS_AXON_EVENT_KEY = "";
+  (function (e, r, key) {
+    if (!key || e.axon) return;
+    var t = ["https://s.axon.ai/pixel.js", "https://res4.applovin.com/p/l/loader.iife.js"];
+    var a = (e.axon = function () {
+      a.performOperation ? a.performOperation.apply(a, arguments) : a.operationQueue.push(arguments);
+    });
+    a.operationQueue = [];
+    a.ts = Date.now();
+    a.eventKey = key;
+    var n = r.getElementsByTagName("script")[0];
+    for (var o = 0; o < t.length; o++) {
+      var i = r.createElement("script");
+      i.async = true;
+      i.src = t[o];
+      n.parentNode.insertBefore(i, n);
+    }
+    e.axon("init");
+  })(window, document, window.GYS_AXON_EVENT_KEY);
+</script>
 
 <script>
   // ---------------------------------------------------------------------------------------------
@@ -375,7 +393,7 @@
     return u.toString();
   }
   function track(name, data) {
-    try { if (typeof window.axon === "function") window.axon("track", name, data); } catch (e) {}
+    try { if (typeof window.axon === "function") { if (data === undefined) window.axon("track", name); else window.axon("track", name, data); } } catch (e) {}
   }
   document.querySelectorAll(".js-cta").forEach(function (a) {
     a.href = dest(a.dataset.place);
@@ -384,6 +402,7 @@
       track("begin_checkout", { currency: "INR", value: C.PRICE_INR, items: [{ item_id: "gys_discovery", item_name: "GYS Discovery", price: C.PRICE_INR, quantity: 1 }] });
     });
   });
+  track("page_view");
   track("view_item", { currency: "INR", value: C.PRICE_INR, items: [{ item_id: "gys_discovery", item_name: "GYS Discovery", price: C.PRICE_INR, quantity: 1 }] });
 
   // 3) The phone dock appears once the hero CTA has scrolled away.
